@@ -1,4 +1,4 @@
-﻿namespace Cake.NUnit
+﻿namespace Cake.SoftNUnit3
 {
     using Cake.Common.Tools.NUnit;
     using Cake.Core;
@@ -11,37 +11,26 @@
     using System.Xml.Linq;
     using System.Xml.XPath;
 
-    [CakeAliasCategory("NUnit v3")]
+    [CakeAliasCategory("Soft NUnit v3")]
     public static class SoftNUnit3Aliases
     {
-
         [CakeMethodAlias]
-        public static FilePath CreateFile(this ICakeContext context, string path)
+        public static string[] GetNUnit3NonPassedTests(this ICakeContext context, IEnumerable<FilePath> resultFilePaths)
         {
-            if (System.IO.File.Exists(path))
-                System.IO.File.Delete(path);
-
-            System.IO.File.Create(path).Dispose();
-            return new FilePath(path);
-        }
-
-        [CakeMethodAlias]
-        public static string[] GetNUnit3FailedTests(this ICakeContext context, IEnumerable<FilePath> resultFilePaths)
-        {
-            var failed = new List<string>();
+            List<string> total = new List<string>();
 
             foreach (var path in resultFilePaths)
             {
-                var result = XElement.Load(path.FullPath);
+                var notPassed = XElement.Load(path.FullPath)
+                    .XPathSelectElements("//test-case")
+                    .Where(e => !e.Passed())
+                    .Select(e => e.Attribute("fullname").Value);
 
-                var cases = result.XPathSelectElements("//test-case")
-                                  .ToList();
-
-                failed.AddRange(cases.Where(e => e.Attribute("result").Value != "Passed")
-                                     .Select(e => e.Attribute("fullname").Value));
+                total.AddRange(notPassed);
             }
-            return failed.Distinct()
-                         .ToArray();
+
+            context.Log.Verbose(Verbosity.Diagnostic, $"count of not passed tests = {total.Count}.");
+            return total.Distinct().ToArray();
         }
 
         [CakeMethodAlias]
@@ -186,7 +175,7 @@
                 throw new ArgumentNullException(nameof(assemblies));
             }
 
-            var runner = new NUnit3SoftRunner(context.FileSystem, context.Environment, context.ProcessRunner, context.Tools);
+            var runner = new SoftNUnit3Runner(context.FileSystem, context.Environment, context.ProcessRunner, context.Tools);
             runner.Run(assemblies, settings);
         }
     }

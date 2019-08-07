@@ -1,4 +1,4 @@
-﻿namespace Cake.NUnit
+﻿namespace Cake.SoftNUnit3
 {
     using Cake.Common.Tools.NUnit;
     using Cake.Core;
@@ -10,15 +10,12 @@
     using System.Linq;
     using System.Text;
 
-    public class NUnit3SoftRunner : Tool<NUnit3Settings>
+    public class SoftNUnit3Runner : Tool<NUnit3Settings>
     {
         private readonly ICakeEnvironment _environment;
 
-        public NUnit3SoftRunner(IFileSystem fileSystem, ICakeEnvironment environment, IProcessRunner processRunner, IToolLocator tools)
-            : base(fileSystem, environment, processRunner, tools)
-        {
-            _environment = environment;
-        }
+        public SoftNUnit3Runner(IFileSystem fileSystem, ICakeEnvironment environment, IProcessRunner processRunner, IToolLocator tools)
+            : base(fileSystem, environment, processRunner, tools) => _environment = environment;
 
         private ProcessArgumentBuilder GetArguments(IEnumerable<FilePath> assemblyPaths, NUnit3Settings settings)
         {
@@ -65,15 +62,15 @@
             }
             if (settings.Work != null)
             {
-                processArgumentBuilders.AppendQuoted(string.Format(CultureInfo.InvariantCulture, "--work={0}", settings.Work.MakeAbsolute(this._environment).FullPath));
+                processArgumentBuilders.AppendQuoted(string.Format(CultureInfo.InvariantCulture, "--work={0}", settings.Work.MakeAbsolute(_environment).FullPath));
             }
             if (settings.OutputFile != null)
             {
-                processArgumentBuilders.AppendQuoted(string.Format(CultureInfo.InvariantCulture, "--out={0}", settings.OutputFile.MakeAbsolute(this._environment).FullPath));
+                processArgumentBuilders.AppendQuoted(string.Format(CultureInfo.InvariantCulture, "--out={0}", settings.OutputFile.MakeAbsolute(_environment).FullPath));
             }
-            if (this.HasResults(settings) && settings.NoResults)
+            if (HasResults(settings) && settings.NoResults)
             {
-                throw new ArgumentException(string.Concat(this.GetToolName(), ": You can't specify both a results file and set NoResults to true."));
+                throw new ArgumentException(string.Concat(GetToolName(), ": You can't specify both a results file and set NoResults to true."));
             }
             if (HasResults(settings))
             {
@@ -151,9 +148,9 @@
             }
             if (settings.ConfigFile != null)
             {
-                processArgumentBuilders.AppendQuoted(string.Format(CultureInfo.InvariantCulture, "--configfile={0}", settings.ConfigFile.MakeAbsolute(this._environment).FullPath));
+                processArgumentBuilders.AppendQuoted(string.Format(CultureInfo.InvariantCulture, "--configfile={0}", settings.ConfigFile.MakeAbsolute(_environment).FullPath));
             }
-            if (settings.Params != null && settings.Params.Count > 0)
+            if (settings.Params?.Count > 0)
             {
                 foreach (KeyValuePair<string, string> param in settings.Params)
                 {
@@ -163,15 +160,9 @@
             return processArgumentBuilders;
         }
 
-        protected override IEnumerable<string> GetToolExecutableNames()
-        {
-            return new string[] { "nunit3-console.exe" };
-        }
+        protected override IEnumerable<string> GetToolExecutableNames() => new string[] { "nunit3-console.exe" };
 
-        protected override string GetToolName()
-        {
-            return "NUnit3";
-        }
+        protected override string GetToolName() => "SoftNUnit3";
 
         private bool HasResults(NUnit3Settings settings)
         {
@@ -185,6 +176,7 @@
         protected override void ProcessExitCode(int exitCode)
         {
             string str;
+
             if (exitCode > 0)
             {
                 exitCode = 0;
@@ -233,20 +225,21 @@
                         }
                 }
             }
-            throw new CakeException(string.Format(CultureInfo.InvariantCulture, "{0}: {1} (exit code {2}).", this.GetToolName(), str, exitCode));
+            throw new CakeException(string.Format(CultureInfo.InvariantCulture, "{0}: {1} (exit code {2}).", GetToolName(), str, exitCode));
         }
 
         public void Run(IEnumerable<FilePath> assemblyPaths, NUnit3Settings settings)
         {
             if (assemblyPaths == null)
             {
-                throw new ArgumentNullException("assemblyPaths");
+                throw new ArgumentNullException(nameof(assemblyPaths));
             }
             if (settings == null)
             {
-                throw new ArgumentNullException("settings");
+                throw new ArgumentNullException(nameof(settings));
             }
-            base.Run(settings, this.GetArguments(assemblyPaths, settings));
+
+            Run(settings, GetArguments(assemblyPaths, settings));
         }
     }
 }
