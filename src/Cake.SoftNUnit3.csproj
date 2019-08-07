@@ -4,6 +4,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Cake.SoftNUnit3</AssemblyName>
     <RootNamespace>Cake.SoftNUnit3</RootNamespace>
+    <Description>Package for running nunit 3 tests without failing cake task if any test was failed.</Description>
+    <PackageTags>Cake NUnit3 SoftRunner</PackageTags>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/OlegYanushkevich/Cake.SoftNUnit3</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/OlegYanushkevich/Cake.SoftNUnit3</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
