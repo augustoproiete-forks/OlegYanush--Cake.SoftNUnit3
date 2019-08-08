@@ -22,6 +22,7 @@ Import **Cake.SoftNUnit3** NuGet package into your cake script for running NUnit
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 
+var rerunCount = Argument<int>("rerunCount", 1);
 NUnit3Settings nunitSettings = new NUnit3Settings { NoResults = false };
 
 //////////////////////////////////////////////////////////////////////
