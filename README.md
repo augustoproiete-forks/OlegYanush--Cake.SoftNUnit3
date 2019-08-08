@@ -61,7 +61,7 @@ Task("Run-Automation-Tests")
     .IsDependentOn("Build")
     .Does(() =>
     {   
-        SoftNUnit3($"{buildDir}/Tests.DevDest.dll", nunitSettings);
+        SoftNUnit3($"{buildDir}/Example.Tests.dll", nunitSettings);
     });
 
 Task("Rerun-Automation-Tests")
@@ -88,7 +88,7 @@ Task("Rerun-Automation-Tests")
             nunitSettings.TestList = testList;
             nunitSettings.Where = null;
 
-            SoftNUnit3($"{buildDir}/Tests.DevDest.dll", nunitSettings);
+            SoftNUnit3($"{buildDir}/Example.Test.dll", nunitSettings);
         }
     });
 
